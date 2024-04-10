@@ -1,7 +1,7 @@
 # Title: Password Generator
 
 <div align="center">
-   <img src="./_06309d6c-5e1a-46d9-85ca-2088a0a029e1.jpeg" alt="image">
+   <img src="./_06309d6c-5e1a-46d9-85ca-2088a0a029e1.jpeg" alt="image" width="200" height="150">
 </div>
 
 ### A simple password generator app built using React Native
