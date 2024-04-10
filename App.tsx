@@ -1,118 +1,181 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import { Alert, Dimensions, SafeAreaView, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import React, { useEffect, useState } from 'react'
+import Slider from '@react-native-community/slider';
+import BouncyCheckbox from "react-native-bouncy-checkbox";
+import { generatePassword } from './utils/generatePassword';
+import Clipboard from '@react-native-clipboard/clipboard';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+export default function App() {
+  const [value, setValue] = useState<number>(6);
+  const [includeCapitalLetters, setIncludeCapitalLetters] = useState<boolean>(false);
+  const [includeNumbers, setIncludeNumbers] = useState<boolean>(false);
+  const [includeSpecialCharacters, setIncludeSpecialCharacters] = useState<boolean>(false);
+  const [password, setPassword] = useState<string>('');
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
-  );
-}
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
+  const handleValueChange = (newValue: number) => {
+    // Ensure the value is an integer between 6 and 20
+    const intValue = Math.round(newValue);
+    if (intValue >= 6 && intValue <= 20) {
+      setValue(intValue);
+    }
   };
 
+  function handlePress() {
+    Clipboard.setString(password);
+    Alert.alert(
+      'Password copied to clipboard',
+      '',
+      [
+        {
+          text: 'OK',
+          onPress: () => console.log('OK Pressed'),
+          style: 'cancel',
+        },
+      ],
+      { cancelable: false }
+    );
+  }
+
+
+  useEffect(() => {
+    setPassword(generatePassword(value, includeCapitalLetters, includeNumbers, includeSpecialCharacters));
+  }, [value, includeCapitalLetters, includeNumbers, includeSpecialCharacters]);
+
   return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
+    <ScrollView keyboardShouldPersistTaps='handled'>
+      <SafeAreaView style={styles.mainContainer}>
+
+        <View style={styles.inputField}>
+          <Text
+            style={styles.valueStyle}
+          >Select a value</Text>
+          <View style={styles.sliderContainer}>
+            <Slider
+              style={styles.slider}
+              minimumValue={6}
+              maximumValue={20}
+              step={1}
+              minimumTrackTintColor="#0000ff"
+              maximumTrackTintColor="#d3d3a8"
+              thumbTintColor="#ff0000"
+              value={value}
+              onValueChange={handleValueChange}
+            />
+          </View>
+          <Text
+            style={styles.value}
+          >Value: {value}</Text>
         </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
+        <View style={styles.checkboxContainer}>
+          <BouncyCheckbox
+            size={25}
+            fillColor="green"
+            unFillColor="#FFFFFF"
+            text="Include Capital Letters"
+            iconStyle={{ borderColor: "green" }}
+            innerIconStyle={{ borderWidth: 1 }}
+            textStyle={{ fontFamily: "JosefinSans-Regular", color: "white", textDecorationLine: 'none', fontSize: 20 }}
+            onPress={(isChecked: boolean) => { setIncludeCapitalLetters(isChecked) }}
+          />
+          <BouncyCheckbox
+            size={25}
+            fillColor="blue"
+            unFillColor="#FFFFFF"
+            text="Include Numbers"
+            iconStyle={{ borderColor: "blue" }}
+            innerIconStyle={{ borderWidth: 1 }}
+            textStyle={{ fontFamily: "JosefinSans-Regular", color: "white", textDecorationLine: 'none', fontSize: 20 }}
+            onPress={(isChecked: boolean) => { setIncludeNumbers(isChecked) }}
+          />
+          <BouncyCheckbox
+            size={25}
+            fillColor="orange"
+            unFillColor="#FFFFFF"
+            text="Include Special Characters"
+            iconStyle={{ borderColor: "orange" }}
+            innerIconStyle={{ borderWidth: 1 }}
+            textStyle={{ fontFamily: "JosefinSans-Regular", color: "white", textDecorationLine: 'none', fontSize: 20 }}
+            onPress={(isChecked: boolean) => { setIncludeSpecialCharacters(isChecked) }}
+          />
+        </View>
+        <View style={styles.inputField}>
+          <Text
+            style={styles.valueStyle}
+          >Password</Text>
+          <View style={styles.showPassword}>
+            <TouchableOpacity onPress={handlePress}>
+              <Text
+                selectable={true}
+                style={styles.password}
+              >{password}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+      </SafeAreaView>
+    </ScrollView>
+  )
 }
 
 const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
+  sliderContainer: {
+    width: '80%',
+    marginVertical: 10,
+    height: 40,
+    borderRadius: 100,
+    backgroundColor: '#d3d3d3',
+    paddingHorizontal: 10,
   },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
+  slider: {
+    flex: 1,
   },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
+  mainContainer: {
+    flex: 1,
+    backgroundColor: '#002f3d',
+    width: Dimensions.get('window').width,
+    height: Dimensions.get('window').height,
   },
-  highlight: {
-    fontWeight: '700',
+  inputField: {
+    marginTop: 30,
+    padding: 10,
+    borderColor: 'black',
+    borderRadius: 20,
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    maxHeight: Dimensions.get('window').height * 0.2,
   },
-});
-
-export default App;
+  valueStyle: {
+    fontSize: 25,
+    padding: 10,
+    color: 'white',
+  },
+  value: {
+    fontSize: 20,
+    color: 'white',
+    marginTop: 10,
+  },
+  checkboxContainer: {
+    alignItems: 'flex-start',
+    marginVertical: 10,
+    paddingHorizontal: 50,
+    gap: 10,
+    fontSize: 30,
+  },
+  showPassword: {
+    backgroundColor: '#d3d3d3',
+    padding: 10,
+    borderRadius: 10,
+    marginTop: 10,
+    width: '80%',
+    height: '60%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  password: {
+    fontSize: 20,
+    color: 'black',
+  },
+})
